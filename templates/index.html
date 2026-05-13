@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ASLP | منصة التعلم الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <nav class="container">
+                <a href="#" class="logo" onclick="navigate('home')">ASLP <span class="text-muted" style="font-size: 0.8rem; font-weight: 400;">AI Learning</span></a>
+                <div class="flex items-center gap-4">
+                    <div id="auth-buttons">
+                        <a href="/login" class="btn btn-primary">دخول</a>
+                    </div>
+                    <div id="user-profile" class="hidden">
+                        <button class="btn btn-outline" onclick="navigate('profile')">
+                            <i data-lucide="user"></i>
+                            <span id="user-name"></span>
+                        </button>
+                    </div>
+                    <button class="btn btn-outline" onclick="toggleDarkMode()" id="dark-mode-toggle">
+                        <i data-lucide="moon"></i>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Home Page -->
+        <div id="page-home" class="page">
+            <section class="hero container text-center">
+                <h1 class="text-gradient" style="font-size: 2.5rem; margin-top: 2rem;">مستقبلك التعليمي يبدأ هنا</h1>
+                <p class="text-muted" style="font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem;">حول ملفاتك التعليمية إلى ملخصات ذكية واختبارات تفاعلية في ثوانٍ معدودة.</p>
+                <div class="flex justify-center gap-4">
+                    <button class="btn btn-primary btn-lg" onclick="navigate('upload')">ابدأ الآن مجاناً</button>
+                </div>
+            </section>
+
+            <section class="container mt-8">
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="card">
+                        <i data-lucide="file-text" class="text-blue-600 mb-4"></i>
+                        <h3>تحليل المستندات</h3>
+                        <p class="text-muted">دعم كامل لملفات PDF و DOCX مع استخراج ذكي للنصوص.</p>
+                    </div>
+                    <div class="card">
+                        <i data-lucide="mic" class="text-pink-600 mb-4"></i>
+                        <h3>معالجة الصوت</h3>
+                        <p class="text-muted">حول محاضراتك الصوتية إلى نصوص وملخصات مكتوبة بدقة.</p>
+                    </div>
+                    <div class="card">
+                        <i data-lucide="brain-circuit" class="text-purple-600 mb-4"></i>
+                        <h3>اختبارات ذكية</h3>
+                        <p class="text-muted">توليد تلقائي للأسئلة والبطاقات التعليمية لقياس مستوى فهمك.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Upload Page -->
+        <div id="page-upload" class="page hidden">
+            <div class="container max-w-2xl">
+                <h2 class="text-center mb-6">رفع ملف جديد</h2>
+                
+                <div class="card mb-6">
+                    <div class="upload-zone" id="drop-zone">
+                        <i data-lucide="cloud-upload"></i>
+                        <h3>اسحب الملف هنا أو اضغط للاختيار</h3>
+                        <p class="text-muted">يدعم PDF, DOCX, MP3, WAV (بحد أقصى 50MB)</p>
+                        <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.doc,.mp3,.wav,.m4a">
+                    </div>
+                    
+                    <div id="file-info" class="hidden mt-4 p-4 bg-blue-50 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="file" id="file-icon"></i>
+                            <div>
+                                <p id="file-name" class="font-semibold"></p>
+                                <p id="file-size" class="text-sm text-muted"></p>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline text-red-600" onclick="resetUploadState()">حذف</button>
+                    </div>
+                </div>
+
+                <div class="card mb-6">
+                    <h3 class="mb-4">إعدادات التحليل</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="p-4 border rounded-xl cursor-pointer hover:border-primary transition-all" onclick="selectOption('analysis-type', 'summary', this)">
+                            <input type="radio" name="analysis-type" value="summary" checked class="hidden">
+                            <p class="font-semibold">ملخص شامل</p>
+                        </div>
+                        <div class="p-4 border rounded-xl cursor-pointer hover:border-primary transition-all" onclick="selectOption('analysis-type', 'quiz', this)">
+                            <input type="radio" name="analysis-type" value="quiz" class="hidden">
+                            <p class="font-semibold">اختبار تفاعلي</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 border rounded-xl cursor-pointer hover:border-primary transition-all" onclick="selectOption('analysis-language', 'ar', this)">
+                            <input type="radio" name="analysis-language" value="ar" checked class="hidden">
+                            <p class="font-semibold">اللغة العربية</p>
+                        </div>
+                        <div class="p-4 border rounded-xl cursor-pointer hover:border-primary transition-all" onclick="selectOption('analysis-language', 'en', this)">
+                            <input type="radio" name="analysis-language" value="en" class="hidden">
+                            <p class="font-semibold">English</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="upload-btn" class="btn btn-primary w-full btn-lg" disabled onclick="handleUpload()">
+                    <i data-lucide="zap"></i> بدء التحليل الذكي
+                </button>
+
+                <div id="progress-section" class="hidden mt-6">
+                    <div class="flex justify-between mb-2">
+                        <span id="progress-status">جاري المعالجة...</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div id="progress-fill" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="page-results" class="page hidden">
+            <div class="container">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="res-file-name">النتائج</h2>
+                    <button class="btn btn-outline" onclick="downloadSummary()">
+                        <i data-lucide="download"></i> تحميل PDF
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="col-span-2">
+                        <div class="card mb-6" id="summary-section">
+                            <h3 class="flex items-center gap-2"><i data-lucide="align-right"></i> الملخص الذكي</h3>
+                            <div id="res-summary" class="text-muted" style="white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="card" id="key-points-section">
+                            <h3 class="flex items-center gap-2"><i data-lucide="list-checks"></i> النقاط الرئيسية</h3>
+                            <ul id="res-key-points" class="space-y-3"></ul>
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <div class="card" id="quiz-section">
+                            <h3 class="flex items-center gap-2"><i data-lucide="help-circle"></i> الاختبار</h3>
+                            <div id="res-quizzes"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Page -->
+        <div id="page-history" class="page hidden">
+            <div class="container">
+                <h2 class="mb-6">سجل التحليلات</h2>
+                <div id="history-list" class="grid grid-cols-1 gap-4">
+                    <!-- History items will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="page-profile" class="page hidden">
+            <div class="container max-w-2xl">
+                <h2 class="text-center mb-6">حسابي</h2>
+                <div class="card p-6 mb-6">
+                    <h3>معلومات المستخدم</h3>
+                    <p><strong>اسم المستخدم:</strong> <span id="profile-username"></span></p>
+                    <p><strong>الاسم الكامل:</strong> <span id="profile-fullname"></span></p>
+                    <p><strong>البريد الإلكتروني:</strong> <span id="profile-email"></span></p>
+                </div>
+                <div class="card p-6">
+                    <h3>الإعدادات</h3>
+                    <button class="btn btn-danger w-full" onclick="logout()">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="navigate('home')">
+                <i data-lucide="home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="#" class="nav-item" onclick="navigate('upload')">
+                <i data-lucide="plus-circle"></i>
+                <span>رفع</span>
+            </a>
+            <a href="#" class="nav-item" onclick="navigate('history')">
+                <i data-lucide="history"></i>
+                <span>السجل</span>
+            </a>
+            <a href="#" class="nav-item" onclick="navigate('profile')">
+                <i data-lucide="user"></i>
+                <span>حسابي</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

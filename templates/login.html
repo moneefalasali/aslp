@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - منصة التعلم الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gradient flex items-center justify-center min-h-screen">
+    <div class="container max-w-3xl" style="display: flex; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; padding: 2rem;">
+            <h2 style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">تسجيل الدخول</h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">مرحباً بك مجدداً في منصة التعلم الذكي</p>
+            
+            <div id="error-alert" class="alert alert-error hidden" style="margin-bottom: 1.5rem;">
+                <i data-lucide="alert-circle"></i>
+                <p id="error-message"></p>
+            </div>
+
+            <form id="login-form">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">اسم المستخدم</label>
+                    <input type="text" id="username" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" placeholder="أدخل اسم المستخدم">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">كلمة المرور</label>
+                    <div style="position: relative;">
+                        <input type="password" id="password" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" placeholder="أدخل كلمة المرور">
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block btn-lg">تسجيل الدخول</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
+                <span style="color: #6b7280;">ليس لديك حساب؟ </span>
+                <a href="/register" style="color: #2563eb; font-weight: 600; text-decoration: none;">إنشاء حساب جديد</a>
+            </div>
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.875rem;">
+                <a href="/admin-login" style="color: #6b7280; text-decoration: none;">دخول المسؤولين</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function safeStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                // ignore storage access issues
+            }
+        }
+
+        lucide.createIcons();
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMsg = document.getElementById('error-message');
+            
+            btn.disabled = true;
+            btn.textContent = 'جاري الدخول...';
+            errorAlert.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'فشل تسجيل الدخول');
+
+                safeStorageSet('access_token', data.access_token);
+                safeStorageSet('user', JSON.stringify(data.user));
+                window.location.href = '/';
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorAlert.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'تسجيل الدخول';
+            }
+        };
+    </script>
+</body>
+</html>

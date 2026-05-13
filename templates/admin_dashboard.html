@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - منصة التعلم الذكي</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50">
+    <header>
+        <nav class="container">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i data-lucide="shield" style="color: #dc2626;"></i>
+                <span class="logo" style="color: #1f2937;">لوحة تحكم المسؤول</span>
+            </div>
+            <button class="btn btn-outline" onclick="adminLogout()" style="color: #dc2626;">تسجيل الخروج</button>
+        </nav>
+    </header>
+
+    <main class="container" style="padding: 3rem 0;">
+        <div class="grid grid-cols-3" style="margin-bottom: 3rem;">
+            <div class="card" style="text-align: center;">
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">إجمالي المستخدمين</p>
+                <h3 id="stat-users" style="font-size: 2.5rem; font-weight: bold; color: #2563eb;">0</h3>
+            </div>
+            <div class="card" style="text-align: center;">
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">الملفات المعالجة</p>
+                <h3 id="stat-files" style="font-size: 2.5rem; font-weight: bold; color: #059669;">0</h3>
+            </div>
+            <div class="card" style="text-align: center;">
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">حالة النظام</p>
+                <h3 style="font-size: 1.5rem; font-weight: bold; color: #059669; margin-top: 0.75rem;">نشط</h3>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1.5rem;">المستخدمين المسجلين</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 1rem;">الاسم</th>
+                            <th style="padding: 1rem;">اسم المستخدم</th>
+                            <th style="padding: 1rem;">البريد الإلكتروني</th>
+                            <th style="padding: 1rem;">تاريخ التسجيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- ستتم إضافتها برمجياً -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // التحقق من صلاحية المسؤول
+        const adminToken = localStorage.getItem('admin_token');
+        if (!adminToken) {
+            window.location.href = '/admin-login';
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/statistics', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                document.getElementById('stat-users').textContent = data.total_users;
+                document.getElementById('stat-files').textContent = data.total_files;
+            } catch (err) {
+                console.error('فشل تحميل الإحصائيات');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                if (!res.ok) throw new Error();
+                const users = await res.json();
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = users.map(user => `
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 1rem;">${user.full_name || '---'}</td>
+                        <td style="padding: 1rem;">${user.username}</td>
+                        <td style="padding: 1rem;">${user.email}</td>
+                        <td style="padding: 1rem;">${new Date(user.created_at).toLocaleDateString('ar-SA')}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('فشل تحميل المستخدمين');
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin');
+            window.location.href = '/admin-login';
+        }
+
+        loadStats();
+        loadUsers();
+    </script>
+</body>
+</html>
