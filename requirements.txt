@@ -16,3 +16,4 @@ python-multipart
 gunicorn
 reportlab
 python-docx
+email-validator
