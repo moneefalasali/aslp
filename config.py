@@ -1,9 +1,14 @@
 import os
-from typing import List
+from typing import List, Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv(override=True)
+
+def parse_comma_separated_list(value: Optional[str], default: List[str]) -> List[str]:
+    if not value:
+        return default
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 class Settings:
     # Ollama Cloud Configuration
@@ -30,7 +35,10 @@ class Settings:
     
     # Server Configuration
     debug: bool = os.getenv("DEBUG", "False").lower() == "true"
-    allowed_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    allowed_origins: List[str] = parse_comma_separated_list(
+        os.getenv("ALLOWED_ORIGINS"),
+        ["http://localhost:5173", "http://localhost:3000"],
+    )
     verify_ssl: bool = os.getenv("VERIFY_SSL", "True").lower() in ("1", "true", "yes")
     ai_provider: str = os.getenv("AI_PROVIDER", "auto").lower()
     

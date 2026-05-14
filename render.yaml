@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: smart-learning-app
+    env: python
+    branch: main
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        value: "replace-with-a-strong-secret"
+      - key: ALLOWED_ORIGINS
+        value: "https://your-render-service.onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-learning-db
+          property: connectionString
+
+databases:
+  - name: smart-learning-db
+    region: oregon
+    plan: starter
+    databaseName: smart_learning

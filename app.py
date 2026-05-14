@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__)
-    
+    app.config['SECRET_KEY'] = settings.secret_key
+
     # Configure UTF-8 encoding
     app.config['JSON_AS_ASCII'] = False
     
