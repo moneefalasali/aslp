@@ -51,6 +51,21 @@ class AuthService:
         except jwt.InvalidTokenError:
             logger.warning("Invalid token")
             return None
+
+    def verify_token_verbose(self, token: str) -> Dict:
+        """Verify a JWT token and return a verbose result with error info.
+
+        Returns: {"payload": dict|None, "error": "expired"|"invalid"|None}
+        """
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            return {"payload": payload, "error": None}
+        except jwt.ExpiredSignatureError:
+            logger.warning("Token expired")
+            return {"payload": None, "error": "expired"}
+        except jwt.InvalidTokenError:
+            logger.warning("Invalid token")
+            return {"payload": None, "error": "invalid"}
     
     def create_refresh_token(self, user_id: int) -> str:
         """Create a refresh token"""

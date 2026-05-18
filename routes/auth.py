@@ -83,9 +83,13 @@ def refresh_token():
         if not refresh_token_str:
             return jsonify({"detail": "توكن غير موجود"}), 401
 
-        payload = auth_service.verify_token(refresh_token_str)
-        
-        if not payload or payload.get("type") != "refresh":
+        result = auth_service.verify_token_verbose(refresh_token_str)
+        payload = result.get("payload")
+        err = result.get("error")
+        if err is not None:
+            # expired or invalid
+            return jsonify({"detail": "توكن غير صالح"}), 401
+        if payload.get("type") != "refresh":
             return jsonify({"detail": "توكن غير صالح"}), 401
         
         user_id = int(payload.get("sub"))
@@ -109,21 +113,25 @@ def get_current_user():
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"detail": "توكن غير موجود"}), 401
-    
+
     token = auth_header.split(' ')[1]
     db = SessionLocal()
     try:
-        payload = auth_service.verify_token(token)
-        
-        if not payload:
+        result = auth_service.verify_token_verbose(token)
+        payload = result.get("payload")
+        err = result.get("error")
+
+        if err == "expired":
+            return jsonify({"detail": "توكن منتهي الصلاحية"}), 401
+        if err == "invalid" or payload is None:
             return jsonify({"detail": "توكن غير صالح"}), 401
-        
+
         user_id = int(payload.get("sub"))
         user = UserService.get_user_by_id(db, user_id)
-        
+
         if not user:
             return jsonify({"detail": "المستخدم غير موجود"}), 401
-        
+
         return jsonify({
             "id": user.id,
             "username": user.username,
@@ -220,15 +228,20 @@ def token_required(f):
         token = auth_header.split(' ')[1]
         db = SessionLocal()
         try:
-            payload = auth_service.verify_token(token)
-            if not payload:
+            result = auth_service.verify_token_verbose(token)
+            payload = result.get("payload")
+            err = result.get("error")
+
+            if err == "expired":
+                return jsonify({"detail": "توكن منتهي الصلاحية"}), 401
+            if err == "invalid" or payload is None:
                 return jsonify({"detail": "توكن غير صالح"}), 401
-            
+
             user_id = int(payload.get("sub"))
             user = UserService.get_user_by_id(db, user_id)
             if not user:
                 return jsonify({"detail": "المستخدم غير موجود"}), 401
-            
+
             return f(user, *args, **kwargs)
         except Exception as e:
             return jsonify({"detail": str(e)}), 401

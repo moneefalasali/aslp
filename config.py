@@ -16,6 +16,11 @@ class Settings:
     ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "https://api.ollama.cloud/v1")
     ollama_model: str = os.getenv("OLLAMA_MODEL", "qwen3:8b")
 
+    # Gemini Configuration
+    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    gemini_endpoint: str = os.getenv("GEMINI_ENDPOINT", "https://generativelanguage.googleapis.com/v1")
+
     # OpenAI Configuration
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -26,7 +31,7 @@ class Settings:
     wasabi_bucket_name: str = os.getenv("WASABI_BUCKET_NAME", "")
     wasabi_region: str = os.getenv("WASABI_REGION", "us-east-1")
     wasabi_endpoint_url: str = os.getenv("WASABI_ENDPOINT_URL", "https://s3.wasabisys.com")
-    use_local_storage: bool = os.getenv("USE_LOCAL_STORAGE", "True").lower() == "true"
+    use_local_storage: bool = os.getenv("USE_LOCAL_STORAGE", "False").lower() == "true"
     upload_folder: str = os.getenv("UPLOAD_FOLDER", "uploads")
     local_base_url: str = os.getenv("LOCAL_BASE_URL", "http://localhost:5000")
     
@@ -40,7 +45,7 @@ class Settings:
         ["http://localhost:5173", "http://localhost:3000"],
     )
     verify_ssl: bool = os.getenv("VERIFY_SSL", "True").lower() in ("1", "true", "yes")
-    ai_provider: str = os.getenv("AI_PROVIDER", "auto").lower()
+    ai_provider: str = os.getenv("AI_PROVIDER", "local").lower()
     
     # File Upload Configuration
     max_file_size: int = 50 * 1024 * 1024  # 50MB

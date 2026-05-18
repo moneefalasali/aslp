@@ -145,7 +145,10 @@ def analyze_text(current_user):
         db.add(db_result)
         db.commit()
         
-        return jsonify(analysis_result)
+        result_payload = analysis_result.copy()
+        result_payload['provider'] = analysis_result.get('provider', 'local')
+        result_payload['used_fallback'] = analysis_result.get('used_fallback', False)
+        return jsonify(result_payload)
     except Exception as e:
         logger.error(f"Analysis error: {e}")
         return jsonify({"detail": str(e)}), 500

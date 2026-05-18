@@ -212,6 +212,16 @@ function updateProgress(val, status) {
 function displayResults(res) {
     document.getElementById('res-file-name').textContent = res.fileName;
     document.getElementById('res-summary').textContent = res.summary || 'لا يوجد ملخص';
+    const statusBanner = document.getElementById('ai-status-banner');
+    if (statusBanner) {
+        if (res.used_fallback) {
+            statusBanner.textContent = 'يتم استخدام نظام الذكاء الاصطناعي الاحتياطي محلياً بسبب عدم توفر Gemini أو انتهاء صلاحية الخدمة.';
+            statusBanner.classList.remove('hidden');
+        } else {
+            statusBanner.textContent = `المزود: ${res.provider === 'gemini' ? 'Gemini AI' : 'OpenAI'}`;
+            statusBanner.classList.remove('hidden');
+        }
+    }
     
     const pointsList = document.getElementById('res-key-points');
     pointsList.innerHTML = (res.key_points || []).map(p => `<li>• ${p}</li>`).join('');

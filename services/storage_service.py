@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class StorageService:
     def __init__(self):
-        self.use_local_storage = settings.use_local_storage or not bool(settings.wasabi_bucket_name)
+        self.use_local_storage = settings.use_local_storage
         self.upload_folder = os.path.abspath(settings.upload_folder)
         self.local_base_url = settings.local_base_url
         self.bucket_name = settings.wasabi_bucket_name
@@ -20,7 +20,7 @@ class StorageService:
         print('StorageService init: bucket_name=', repr(self.bucket_name))
         print('StorageService init: upload_folder=', self.upload_folder)
 
-        if self.use_local_storage:
+        if self.use_local_storage or not self.bucket_name:
             os.makedirs(self.upload_folder, exist_ok=True)
             logger.info(f"StorageService: using local storage at {self.upload_folder}")
         else:
@@ -37,7 +37,7 @@ class StorageService:
         """Upload file to Wasabi S3 or local storage"""
         if self.use_local_storage or not self.bucket_name:
             if not self.use_local_storage:
-                logger.warning("StorageService: missing bucket name, falling back to local storage")
+                logger.warning("StorageService: no Wasabi bucket configured, falling back to local temporary storage")
             return self._upload_file_local(file_content, file_name, file_type)
 
         try:
